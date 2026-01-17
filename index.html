@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flag Quiz Game</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #eef2f3;
+    text-align: center;
+    padding: 30px;
+  }
+
+  .box {
+    background: white;
+    max-width: 380px;
+    margin: auto;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  img {
+    width: 240px;
+    height: 150px;
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    margin: 6px 0;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  #level {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  #result {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- START PAGE -->
+<div id="startPage" class="box">
+  <h1>🌍 Flag Quiz</h1>
+  <p>Select Difficulty</p>
+  <button onclick="selectDifficulty('easy')">🟢 Easy</button>
+  <button onclick="selectDifficulty('medium')">🟡 Medium</button>
+  <button onclick="selectDifficulty('hard')">🔴 Hard</button>
+</div>
+
+<!-- QUIZ PAGE -->
+<div id="quizPage" class="box" style="display:none;">
+  <div id="level"></div>
+  <img id="flag" alt="Flag">
+  <div id="options"></div>
+  <p id="result"></p>
+</div>
+
+<script>
+const allCountries = [
+  { name: "India", flag: "https://flagcdn.com/w320/in.png" },
+  { name: "France", flag: "https://flagcdn.com/w320/fr.png" },
+  { name: "Japan", flag: "https://flagcdn.com/w320/jp.png" },
+  { name: "Brazil", flag: "https://flagcdn.com/w320/br.png" },
+  { name: "Germany", flag: "https://flagcdn.com/w320/de.png" },
+  { name: "Canada", flag: "https://flagcdn.com/w320/ca.png" },
+  { name: "Australia", flag: "https://flagcdn.com/w320/au.png" },
+  { name: "Italy", flag: "https://flagcdn.com/w320/it.png" },
+  { name: "South Africa", flag: "https://flagcdn.com/w320/za.png" },
+  { name: "United States", flag: "https://flagcdn.com/w320/us.png" },
+  { name: "Spain", flag: "https://flagcdn.com/w320/es.png" },
+  { name: "Mexico", flag: "https://flagcdn.com/w320/mx.png" }
+];
+
+let difficulty = "easy";
+let level = 0;
+let quizSet = [];
+let optionCount = 2;
+
+function selectDifficulty(diff) {
+  difficulty = diff;
+  level = 0;
+
+  optionCount = diff === "easy" ? 2 : diff === "medium" ? 3 : 4;
+
+  quizSet = [...allCountries]
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 10);
+
+  document.getElementById("startPage").style.display = "none";
+  document.getElementById("quizPage").style.display = "block";
+
+  loadLevel();
+}
+
+function loadLevel() {
+  if (level >= 10) {
+    document.getElementById("quizPage").innerHTML = `
+      <h2>🎉 ${difficulty.toUpperCase()} Completed!</h2>
+      <p>You finished all 10 levels.</p>
+      <button onclick="location.reload()">Play Again</button>
+    `;
+    return;
+  }
+
+  document.getElementById("level").innerText =
+    `${difficulty.toUpperCase()} – Level ${level + 1} / 10`;
+
+  document.getElementById("result").innerText = "";
+
+  const correct = quizSet[level];
+  document.getElementById("flag").src = correct.flag;
+
+  const optionsDiv = document.getElementById("options");
+  optionsDiv.innerHTML = "";
+
+  let options = allCountries
+    .map(c => c.name)
+    .sort(() => 0.5 - Math.random())
+    .slice(0, optionCount - 1);
+
+  options.push(correct.name);
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.innerText = opt;
+    btn.onclick = () => checkAnswer(opt, correct.name);
+    optionsDiv.appendChild(btn);
+  });
+}
+
+function checkAnswer(selected, correct) {
+  const result = document.getElementById("result");
+  if (selected === correct) {
+    result.innerText = "✅ Correct!";
+    level++;
+    setTimeout(loadLevel, 700);
+  } else {
+    result.innerText = "❌ Wrong! Try again.";
+  }
+}
+</script>
+
+</body>
+</html>
